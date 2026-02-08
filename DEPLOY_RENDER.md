@@ -47,7 +47,7 @@ Scroll down to **Environment Variables** and add these:
 
 *(Note: You can skip `MONGO_URI` since you are using Firestore)*
 
-## Step 4: Deploy
+## Step 4: Deploy (Backend)
 
 Click **Create Web Service** at the bottom.
 
@@ -56,12 +56,36 @@ Wait for the build to finish. In the logs, you should see:
 > `🔥 Firebase Connected Successfully to Firestore`
 > `🚀 Server running on port 10000`
 
-## Frontend (Expo)
+**Copy your Backend URL** from the top left of the dashboard (e.g., `https://planck-backend.onrender.com`). You need this next.
 
-Your frontend is a mobile app. You generally do not "deploy" it to Render unless you are running it as a website.
-To build your app for Android/iOS, you use EAS Build on your computer, pointing to this new backend URL.
+---
 
-1.  Install EAS CLI: `npm install -g eas-cli`
-2.  Login: `eas login`
-3.  Configure `eas.json`
-4.  Run `eas build --platform android` (or ios)
+## Step 5: Frontend Deployment (Web App)
+
+Since this is a Web App, we will deploy it as a **Static Site** on Render.
+
+1.  **Dashboard**: click **New +** -> **Static Site**.
+2.  **Connect Repo**: Select the `Planck` repository again.
+3.  **Configuration**:
+    - **Name**: `planck-web`
+    - **Branch**: `main`
+    - **Root Directory**: `frontend`
+    - **Build Command**: `npx expo export:web`
+    - **Publish Directory**: `web-build`
+4.  **Environment Variables**:
+    Add the following variable so your frontend knows where the backend is:
+    
+    | Key | Value |
+    | :--- | :--- |
+    | `EXPO_PUBLIC_API_URL` | `https://your-backend-name.onrender.com` (Paste the URL you copied in Step 4, **without** the trailing slash) |
+
+5.  **Rewrites**:
+    Go to **Redirects/Rewrites** tab (or check Advanced settings):
+    - **Source**: `/*`
+    - **Destination**: `/index.html`
+    - **Action**: `Rewrite`
+    *(This is crucial for React routing to work)*
+
+6.  **Deploy**: Click **Create Static Site**.
+
+Your app will be live at `https://planck-web.onrender.com`.
