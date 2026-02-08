@@ -2,8 +2,10 @@ import axios from 'axios';
 import { Platform } from 'react-native';
 import { getToken } from '../utils/storage';
 
-// Use localhost for iOS/Web, 10.0.2.2 for Android Emulator
-const BASE_URL = Platform.OS === 'android' ? 'http://10.0.2.2:5000/api' : 'http://localhost:5000/api';
+// Use environment variable for production, fallback to localhost/emulator for dev
+const BASE_URL = process.env.EXPO_PUBLIC_API_URL
+    ? `${process.env.EXPO_PUBLIC_API_URL}/api`
+    : (Platform.OS === 'android' ? 'http://10.0.2.2:5000/api' : 'http://localhost:5000/api');
 
 const api = axios.create({
     baseURL: BASE_URL,
@@ -18,4 +20,6 @@ api.interceptors.request.use(async (config) => {
 });
 
 export default api;
-export const SERVER_URL = Platform.OS === 'android' ? 'http://10.0.2.2:5000' : 'http://localhost:5000';
+export const SERVER_URL = process.env.EXPO_PUBLIC_API_URL
+    ? process.env.EXPO_PUBLIC_API_URL
+    : (Platform.OS === 'android' ? 'http://10.0.2.2:5000' : 'http://localhost:5000');
