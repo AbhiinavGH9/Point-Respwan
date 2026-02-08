@@ -1,51 +1,67 @@
-# Deploying Planck on Render
+# Deploying Planck (Firestore Version) on Render
 
-This guide outlines the steps to deploy the Planck backend (Node.js/Express) and frontend (if applicable) on Render.
+This guide is specific to your **Firestore** setup. Follow these steps exactly.
 
-## Prerequisites
-- A [Render](https://render.com) account.
-- This GitHub repository connected to your Render account.
+## Step 1: Prepare Your Firebase Key
+Since we cannot upload the `serviceAccountKey.json` file to GitHub (it's a secret!), we will give it to Render using a secure code.
 
-## Backend Deployment (Web Service)
+1.  Open your `backend/serviceAccountKey.json` file on your computer.
+2.  Copy the **entire content** (the whole JSON object including `{ "type": "service_account", ... }`).
+3.  Go to this website: [https://www.base64encode.org/](https://www.base64encode.org/)
+4.  Paste your JSON code into the top box.
+5.  Click **Encode**.
+6.  **Copy the resulting long text string**. You will need this in Step 3.
 
-1. **Dashboard**: Go to your Render Dashboard and click **New +** -> **Web Service**.
-2. **Connect Repo**: Select the `Planck` repository.
-3. **Configuration**:
-    - **Name**: `planck-backend` (or similar)
-    - **Region**: Closest to your users (e.g., Singapore, Frankfurt, Oregon).
-    - **Branch**: `main`
-    - **Root Directory**: `backend` (Important: This tells Render to look in the backend folder)
-    - **Runtime**: `Node`
-    - **Build Command**: `npm install`
-    - **Start Command**: `node src/server.js` (or `npm start`)
-4. **Environment Variables**:
-    Add the following variables under "Environment" (copy values from your local `.env`):
-    - `PORT`: `10000` (Render default)
-    - `MONGO_URI`: Your MongoDB connection string.
-    - `JWT_SECRET`: Your secret key.
-    - `CLOUDINARY_CLOUD_NAME`: ...
-    - `CLOUDINARY_API_KEY`: ...
-    - `CLOUDINARY_API_SECRET`: ...
-    - `FIREBASE_SERVICE_ACCOUNT`: (If using Firebase Admin, you may need to handle the JSON file path or encoded string)
-5. **Deploy**: Click **Create Web Service**.
+## Step 2: Create Web Service on Render
 
-## Database (MongoDB Atlas)
+1.  Log in to [Render.com](https://render.com).
+2.  Click **New +** -> **Web Service**.
+3.  Connect your GitHub repository **AbhiinavGH9/Planck**.
+4.  Click **Connect**.
 
-Ensure your MongoDB Atlas cluster allows connections from anywhere (`0.0.0.0/0`) OR whitelist Render's IP addresses (which can change, so allowing all or using a VPC peering is standard).
+## Step 3: Configure Settings
+
+Fill in these exact details:
+
+| Setting | Value |
+| :--- | :--- |
+| **Name** | `planck-backend` |
+| **Region** | `Singapore` (or closest to you) |
+| **Branch** | `main` |
+| **Root Directory** | `backend` |
+| **Runtime** | `Node` |
+| **Build Command** | `npm install` |
+| **Start Command** | `node src/server.js` |
+
+### Environment Variables
+Scroll down to **Environment Variables** and add these:
+
+| Key | Value |
+| :--- | :--- |
+| `PORT` | `10000` |
+| `FIREBASE_SERVICE_ACCOUNT_BASE64` | *(Paste the long encoded string from Step 1)* |
+| `JWT_SECRET` | *(Copy from your local .env)* |
+| `CLOUDINARY_CLOUD_NAME` | *(Copy from your local .env)* |
+| `CLOUDINARY_API_KEY` | *(Copy from your local .env)* |
+| `CLOUDINARY_API_SECRET` | *(Copy from your local .env)* |
+
+*(Note: You can skip `MONGO_URI` since you are using Firestore)*
+
+## Step 4: Deploy
+
+Click **Create Web Service** at the bottom.
+
+Wait for the build to finish. In the logs, you should see:
+> `🔥 Firebase Config loaded from Environment Variable`
+> `🔥 Firebase Connected Successfully to Firestore`
+> `🚀 Server running on port 10000`
 
 ## Frontend (Expo)
 
-Since the frontend is built with Expo (React Native), it is typically deployed to App Stores or as a progressive web app (PWA).
+Your frontend is a mobile app. You generally do not "deploy" it to Render unless you are running it as a website.
+To build your app for Android/iOS, you use EAS Build on your computer, pointing to this new backend URL.
 
-### If deploying as Web (Static Site):
-1. **Build**: Run `npx expo export:web` locally to generate a `web-build` folder.
-2. **Deploy**: You can deploy this static folder to **Render Static Sites** or **Vercel/Netlify**.
-3. **Configuration**:
-    - **Root Directory**: `frontend`
-    - **Build Command**: `npx expo export:web`
-    - **Publish Directory**: `web-build`
-    - **Rewrite Rules**: SPAs need a rewrite rule: Source `/*`, Destination `/index.html`.
-
-## Troubleshooting
-- **Logs**: Check the "Logs" tab in Render for startup errors.
-- **Port**: Ensure the backend listens on `process.env.PORT`.
+1.  Install EAS CLI: `npm install -g eas-cli`
+2.  Login: `eas login`
+3.  Configure `eas.json`
+4.  Run `eas build --platform android` (or ios)
