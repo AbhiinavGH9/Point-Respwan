@@ -793,14 +793,15 @@ export default function ChatDetailView({ chatId, otherUser, onBack, isMobile = t
             </View>
 
             <KeyboardAvoidingView
-                behavior={Platform.OS === "ios" ? "padding" : undefined}
-                style={{ flex: 1, flexDirection: 'column', justifyContent: 'flex-end' }}
-                keyboardVerticalOffset={Platform.OS === "ios" ? 10 : 0}
+                behavior={Platform.OS === "ios" ? "padding" : "height"}
+                style={{ flex: 1, flexDirection: 'column' }}
+                keyboardVerticalOffset={Platform.OS === "ios" ? 10 : 30}
             >
                 {loading ? <ActivityIndicator size="large" color={colors.blue} style={{ marginTop: 50, flex: 1 }} /> : (
                     <FlatList
                         ref={flatListRef}
                         data={displayMessages}
+                        style={{ flex: 1 }}
                         renderItem={({ item }) => (
                             <MessageBubble
                                 item={item}

@@ -117,6 +117,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
             set({ isConnected: true });
             newSocket.emit('join_user_room', userId);
             get().fetchChatSettings(); // Sync settings on connect
+            get().fetchChats(); // Sync chats on connect (fetch latest messages)
         });
 
         newSocket.on('disconnect', () => {
