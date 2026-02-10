@@ -111,6 +111,17 @@ export default function ChatDetailView({ chatId, otherUser, onBack, isMobile = t
         }
     }, [starAnimVisible]);
 
+    // Force scroll to bottom (inverted top) on load
+    useEffect(() => {
+        if (localMessages.length > 0) {
+            // Small timeout to ensure layout is measured
+            setTimeout(() => {
+                flatListRef.current?.scrollToOffset({ offset: 0, animated: false });
+            }, 100);
+        }
+    }, [chatId]); // Run on chat open
+
+
     // Scroll to Highlight
     useEffect(() => {
         if (highlightMessageId && localMessages.length > 0) {
@@ -793,9 +804,9 @@ export default function ChatDetailView({ chatId, otherUser, onBack, isMobile = t
             </View>
 
             <KeyboardAvoidingView
-                behavior={Platform.OS === "ios" ? "padding" : "height"}
+                behavior={Platform.OS === "ios" ? "padding" : undefined}
                 style={{ flex: 1, flexDirection: 'column' }}
-                keyboardVerticalOffset={Platform.OS === "ios" ? 10 : 30}
+                keyboardVerticalOffset={Platform.OS === "ios" ? 10 : 0}
             >
                 {loading ? <ActivityIndicator size="large" color={colors.blue} style={{ marginTop: 50, flex: 1 }} /> : (
                     <FlatList
