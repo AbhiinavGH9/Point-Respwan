@@ -11,18 +11,22 @@ export default function App() {
 
   useEffect(() => {
     const subscription = AppState.addEventListener('change', (nextAppState: AppStateStatus) => {
-      if (
-        appState.current.match(/inactive|background/) &&
-        nextAppState === 'active'
-      ) {
-        console.log('⚡ App has come to the foreground - Resuming...');
-        const { user, token } = useAuthStore.getState();
-        if (user && token) {
-          useChatStore.getState().connectSocket(token, user.id);
+      try {
+        if (
+          appState.current.match(/inactive|background/) &&
+          nextAppState === 'active'
+        ) {
+          console.log('⚡ App has come to the foreground - Resuming...');
+          const { user, token } = useAuthStore.getState();
+          if (user && token) {
+            useChatStore.getState().connectSocket(token, user.id);
+          }
+        } else if (nextAppState.match(/inactive|background/)) {
+          console.log('💤 App has gone to the background - Pausing to save reads...');
+          useChatStore.getState().disconnectSocket();
         }
-      } else if (nextAppState.match(/inactive|background/)) {
-        console.log('💤 App has gone to the background - Pausing to save reads...');
-        useChatStore.getState().disconnectSocket();
+      } catch (error) {
+        console.error("AppState Listener Error:", error);
       }
 
       appState.current = nextAppState;
