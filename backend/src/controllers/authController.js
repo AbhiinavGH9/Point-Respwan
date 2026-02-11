@@ -3,7 +3,11 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 exports.login = async (req, res) => {
-    const { username, password, avatarUrl } = req.body;
+    let { username, password, avatarUrl } = req.body;
+
+    // Normalize username to lowercase for case-insensitive login
+    if (username) username = username.toLowerCase().trim();
+
     console.log(`[LOGIN ATTEMPT] Username: '${username}', Password: '${password}'`);
 
     if (!db) return res.status(500).json({ error: "Database not connected" });
